@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Send WhatsApp Message</title>
+</head>
+
+<body>
+    {% if messages %}
+  {% for message in messages %}
+    <div class="alert {{ message.tags }}">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+    <h1>Send a WhatsApp Message</h1>
+    <form method="post" action="{% url 'send_whatsapp_message' %}">
+      <form method="POST" action="">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="phone_number" class="form-label">Phone Number:</label>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="Enter number with country code" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    
+    </form>
+</body>
+</html>
