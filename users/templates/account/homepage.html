@@ -16,14 +16,13 @@
 {% endif %}
 
     <h1>Send a WhatsApp Message</h1>
-    <form method="post" action="{% url 'send_whatsapp_message' %}">
-      <form method="POST" action="">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="phone_number" class="form-label">Phone Number:</label>
-            <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="Enter number with country code" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Send</button>
+    <form method="POST" action="{% url 'send_whatsapp_message' %}">
+      {% csrf_token %}
+      <label for="phone_numbers">Phone Numbers (comma-separated):</label>
+      <input type="text" name="phone_numbers" placeholder="919596466031, 919876543210" required>
+      <button type="submit">Send Message</button>
+  </form>
+  
     </form>
     
     </form>

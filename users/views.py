@@ -8,37 +8,53 @@ from api_integration import settings
 
 from django.contrib import messages
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
 def send_whatsapp_message(request):
     if request.method == 'POST':
-        phone_number = request.POST.get('phone_number')
+        phone_numbers = request.POST.get('phone_numbers') 
+        if not phone_numbers:
+            messages.error(request, "Please enter at least one phone number.")
+            return render(request, 'account/homepage.html')
+
+        phone_numbers = [num.strip() for num in phone_numbers.split(',')]
 
         headers = {
             "Authorization": f"Bearer {settings.WHATSAPP_TOKEN}",
             "Content-Type": "application/json"
         }
 
-        payload = {
-            "messaging_product": "whatsapp",
-            "to": phone_number,
-            "type": "template",
-            "template": {
-                "name": "hello_world",
-                "language": {"code": "en_US"}
+        success_count = 0
+        for phone_number in phone_numbers:
+            payload = {
+                "messaging_product": "whatsapp",
+                "to": phone_number,
+                "type": "template",
+                "template": {
+                    "name": "hello_world",
+                    "language": {"code": "en_US"}
+                }
             }
-        }
 
-        response = requests.post(settings.WHATSAPP_API_URL, headers=headers, json=payload)
-        response_data = response.json()
+            response = requests.post(settings.WHATSAPP_API_URL, headers=headers, json=payload)
+            response_data = response.json()
 
-        if response.status_code == 200 and "messages" in response_data:
-            messages.success(request, "Message sent successfully!")
+            if response.status_code == 200 and "messages" in response_data:
+                success_count += 1
+            else:
+                error_detail = response_data.get("error", {}).get("message", "Failed to send message.")
+                messages.warning(request, f"Failed for {phone_number}: {error_detail}")
+
+        if success_count:
+            messages.success(request, f"Successfully sent messages to {success_count} numbers.")
         else:
-            error_detail = response_data.get("error", {}).get("message", "Failed to send message.")
-            messages.error(request, f"Error: {error_detail}")
+            messages.error(request, "No messages were successfully sent.")
 
-        return render(request, 'account/homepage.html')
+        return redirect('homepage') 
 
     return render(request, 'account/homepage.html')
+
 
 
 
